@@ -337,9 +337,9 @@ export default {
   },
   computed: {
     serverStatusHandler() {
-      if (this.receiveNews.temp > 0 && this.receiveNews.temp <= 30.0) {
+      if (this.receiveNews.temp > 0 && this.receiveNews.temp <= 35.0) {
         return "Normal";
-      } else if (this.receiveNews.temp > 30.1) {
+      } else if (this.receiveNews.temp > 35.1) {
         return "High Temp";
       } else {
         return "Sensor not working";
