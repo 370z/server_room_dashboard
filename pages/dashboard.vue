@@ -349,7 +349,7 @@ export default {
   methods: {
     async retrieveData() {
       await this.$axios
-        .$get("http://localhost:8080/sensorData")
+        .$get("http://itdev.cmtc.ac.th:2002/sensorData")
         .then((response) => {
           this.items = response.map(this.getDisplayData);
           console.log(response);
