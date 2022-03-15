@@ -153,7 +153,7 @@ export default {
   watch: {
     async tempNotifyValue(value) {
       await this.$axios
-        .$put("http://localhost:8080/api/v1/updateNotify/1", {
+        .$put("http://itdev.cmtc.ac.th/api/v1/updateNotify/1", {
           notify_setting: value,
         })
         .then((response) => {
@@ -176,7 +176,7 @@ export default {
   methods: {
     async updateLineToken() {
       await this.$axios
-        .$put("http://localhost:8080/api/v1/updateToken/1", {
+        .$put("http://itdev.cmtc.ac.th/api/v1/updateToken/1", {
           line_token: this.line_token,
         })
         .then((response) => {
@@ -185,7 +185,7 @@ export default {
     },
     async retrieveLineData() {
       await this.$axios
-        .$get("http://localhost:8080/api/v1/userData")
+        .$get("http://itdev.cmtc.ac.th/api/v1/userData")
         .then((response) => {
           this.line_token = response[0].line_token;
           this.tempNotifyValue = response[0].notify_setting;
@@ -194,7 +194,7 @@ export default {
     },
     async retrieveData() {
       await this.$axios
-        .$get("http://localhost:8080/api/v1/sensorData")
+        .$get("http://itdev.cmtc.ac.th/api/v1/sensorData")
         .then((response) => {
           this.items = response.map(this.getDisplayData);
           console.log(response);
