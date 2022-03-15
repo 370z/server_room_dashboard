@@ -9,7 +9,7 @@
           :value="receiveNews.temp"
           small-value="C"
           sub-icon="mdi-calendar"
-          sub-text="Last 24 Hours"
+          sub-text="Realtime Temperature"
         />
       </v-flex>
       <v-flex sm6 xs12 md6 lg3>
@@ -20,7 +20,7 @@
           :value="receiveNews.humi"
           small-value="%"
           sub-icon="mdi-calendar"
-          sub-text="Last 24 Hours"
+          sub-text="Realtime Humidity"
         />
       </v-flex>
       <v-flex sm6 xs12 md6 lg3>
@@ -33,9 +33,34 @@
           sub-text="Tracked from AM2315"
         />
       </v-flex>
+      <v-flex sm6 xs12 md6 lg3>
+        <v-card>
+          <v-card-text>
+            Line Token: {{ line_token }}
+            <form @submit.prevent="updateLineToken()" class="d-flex">
+              <v-text-field
+                type="text"
+                placeholder="Enter Line Token"
+                outlined
+                clearable
+                v-model="line_token"
+              ></v-text-field>
+              <v-btn type="submit" color="green"> Submit </v-btn>
+            </form>
+            Temp Notify Setting: {{ tempNotifyValue }}
+            <v-slider
+              v-model="tempNotifyValue"
+              max="50"
+              step="0.1"
+              thumb-label
+              ticks
+            ></v-slider>
+          </v-card-text>
+        </v-card>
+      </v-flex>
 
-      <v-flex md12 lg6>
-        <material-card color="orange" title="History">
+      <v-flex md12 lg12>
+        <material-card color="orange" title="History Every 1 Hour">
           <v-data-table :headers="headers" :items="items">
             <template slot="headerCell" slot-scope="{ header }">
               <span
@@ -51,139 +76,6 @@
               <td class="text-xs-right">{{ item.city }}</td>
             </template>
           </v-data-table>
-        </material-card>
-      </v-flex>
-      <v-flex md12 lg6>
-        <material-card class="card-tabs" color="green">
-          <v-flex slot="header">
-            <v-tabs v-model="tabs" color="transparent" slider-color="white">
-              <span
-                class="subheading font-weight-light mr-3"
-                style="align-self: center"
-                >Tasks:</span
-              >
-              <v-tab class="mr-3">
-                <v-icon class="mr-2">mdi-bug</v-icon>
-                Bugs
-              </v-tab>
-              <v-tab class="mr-3">
-                <v-icon class="mr-2">mdi-code-tags</v-icon>
-                Website
-              </v-tab>
-              <v-tab>
-                <v-icon class="mr-2">mdi-cloud</v-icon>
-                Server
-              </v-tab>
-            </v-tabs>
-          </v-flex>
-
-          <v-tabs-items v-model="tabs">
-            <v-tab-item v-for="n in 3" :key="n">
-              <v-list three-line>
-                <v-list-tile @click="complete(0)">
-                  <v-list-tile-action>
-                    <v-checkbox :value="list[0]" color="green" />
-                  </v-list-tile-action>
-                  <v-list-tile-title>
-                    Sign contract for "What are conference organized afraid of?"
-                  </v-list-tile-title>
-                  <div class="d-flex">
-                    <v-tooltip top content-class="top">
-                      <v-btn
-                        slot="activator"
-                        class="v-btn--simple"
-                        color="success"
-                        icon
-                      >
-                        <v-icon color="primary">mdi-pencil</v-icon>
-                      </v-btn>
-                      <span>Edit</span>
-                    </v-tooltip>
-                    <v-tooltip top content-class="top">
-                      <v-btn
-                        slot="activator"
-                        class="v-btn--simple"
-                        color="danger"
-                        icon
-                      >
-                        <v-icon color="error">mdi-close</v-icon>
-                      </v-btn>
-                      <span>Close</span>
-                    </v-tooltip>
-                  </div>
-                </v-list-tile>
-                <v-divider />
-                <v-list-tile @click="complete(1)">
-                  <v-list-tile-action>
-                    <v-checkbox :value="list[1]" color="success" />
-                  </v-list-tile-action>
-                  <v-list-tile-title>
-                    Lines From Great Russian Literature? Or E-mails From My
-                    Boss?
-                  </v-list-tile-title>
-                  <div class="d-flex">
-                    <v-tooltip top content-class="top">
-                      <v-btn
-                        slot="activator"
-                        class="v-btn--simple"
-                        color="success"
-                        icon
-                      >
-                        <v-icon color="primary">mdi-pencil</v-icon>
-                      </v-btn>
-                      <span>Edit</span>
-                    </v-tooltip>
-
-                    <v-tooltip top content-class="top">
-                      <v-btn
-                        slot="activator"
-                        class="v-btn--simple"
-                        color="danger"
-                        icon
-                      >
-                        <v-icon color="error">mdi-close</v-icon>
-                      </v-btn>
-                      <span>Close</span>
-                    </v-tooltip>
-                  </div>
-                </v-list-tile>
-                <v-divider />
-                <v-list-tile @click="complete(2)">
-                  <v-list-tile-action>
-                    <v-checkbox :value="list[2]" color="success" />
-                  </v-list-tile-action>
-                  <v-list-tile-title>
-                    Flooded: One year later, assessing what was lost and what
-                    was found when a ravaging rain swept through metro Detroit
-                  </v-list-tile-title>
-                  <div class="d-flex">
-                    <v-tooltip top content-class="top">
-                      <v-btn
-                        slot="activator"
-                        class="v-btn--simple"
-                        color="success"
-                        icon
-                      >
-                        <v-icon color="primary">mdi-pencil</v-icon>
-                      </v-btn>
-                      <span>Edit</span>
-                    </v-tooltip>
-                    <v-tooltip top content-class="top">
-                      <v-btn
-                        slot="activator"
-                        class="v-btn--simple"
-                        color="danger"
-                        icon
-                      >
-                        <v-icon color="error">mdi-close</v-icon>
-                      </v-btn>
-                      <span>Close</span>
-                    </v-tooltip>
-                  </div>
-                </v-list-tile>
-              </v-list>
-            </v-tab-item>
-          </v-tabs-items>
         </material-card>
       </v-flex>
     </v-layout>
@@ -205,6 +97,8 @@ export default {
   },
   data() {
     return {
+      tempNotifyValue: 30.0,
+      line_token: "",
       receiveNews: { temp: "0", humi: "0" },
       connection: {
         host: "itdev.cmtc.ac.th",
@@ -222,85 +116,6 @@ export default {
         topic1: "temp",
         topic2: "humi",
         qos: 0,
-      },
-      dailySalesChart: {
-        data: {
-          labels: ["M", "T", "W", "T", "F", "S", "S"],
-          series: [[12, 17, 7, 17, 23, 18, 38]],
-        },
-        options: {
-          low: 0,
-          high: 50, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
-          chartPadding: {
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-          },
-        },
-      },
-      dataCompletedTasksChart: {
-        data: {
-          labels: ["12am", "3pm", "6pm", "9pm", "12pm", "3am", "6am", "9am"],
-          series: [[230, 750, 450, 300, 280, 240, 200, 190]],
-        },
-        options: {
-          low: 0,
-          high: 1000, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
-          chartPadding: {
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-          },
-        },
-      },
-      emailsSubscriptionChart: {
-        data: {
-          labels: [
-            "Ja",
-            "Fe",
-            "Ma",
-            "Ap",
-            "Mai",
-            "Ju",
-            "Jul",
-            "Au",
-            "Se",
-            "Oc",
-            "No",
-            "De",
-          ],
-          series: [
-            [542, 443, 320, 780, 553, 453, 326, 434, 568, 610, 756, 895],
-          ],
-        },
-        options: {
-          axisX: {
-            showGrid: false,
-          },
-          low: 0,
-          high: 1000,
-          chartPadding: {
-            top: 0,
-            right: 5,
-            bottom: 0,
-            left: 0,
-          },
-        },
-        responsiveOptions: [
-          [
-            "screen and (max-width: 640px)",
-            {
-              seriesBarDistance: 5,
-              axisX: {
-                labelInterpolationFnc: function (value) {
-                  return value[0];
-                },
-              },
-            },
-          ],
-        ],
       },
       headers: [
         {
@@ -335,6 +150,18 @@ export default {
       },
     };
   },
+  watch: {
+    async tempNotifyValue(value) {
+      await this.$axios
+        .$put("http://localhost:8080/api/v1/updateNotify/1", {
+          notify_setting: value,
+        })
+        .then((response) => {
+          console.log(response);
+        });
+      console.log(value);
+    },
+  },
   computed: {
     serverStatusHandler() {
       if (this.receiveNews.temp > 0 && this.receiveNews.temp <= 35.0) {
@@ -347,9 +174,27 @@ export default {
     },
   },
   methods: {
+    async updateLineToken() {
+      await this.$axios
+        .$put("http://localhost:8080/api/v1/updateToken/1", {
+          line_token: this.line_token,
+        })
+        .then((response) => {
+          console.log(response);
+        });
+    },
+    async retrieveLineData() {
+      await this.$axios
+        .$get("http://localhost:8080/api/v1/userData")
+        .then((response) => {
+          this.line_token = response[0].line_token;
+          this.tempNotifyValue = response[0].notify_setting;
+          console.log(response);
+        });
+    },
     async retrieveData() {
       await this.$axios
-        .$get("http://itdev.cmtc.ac.th:2002/sensorData")
+        .$get("http://localhost:8080/api/v1/sensorData")
         .then((response) => {
           this.items = response.map(this.getDisplayData);
           console.log(response);
@@ -382,6 +227,7 @@ export default {
   },
   async mounted() {
     await this.retrieveData();
+    await this.retrieveLineData();
     const { topic1, topic2, qos } = this.subscription;
     const { host, port, endpoint, ...options } = this.connection;
     const connectUrl = `ws://${host}:${port}${endpoint}`;
@@ -453,3 +299,8 @@ export default {
   },
 };
 </script>
+<style scoped>
+.line_token_field {
+  width: 300px;
+}
+</style>
