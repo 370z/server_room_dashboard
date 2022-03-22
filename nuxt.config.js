@@ -70,9 +70,9 @@ export default {
           autoFetch: true
         },
         endpoints: {
-          login: { url: "http://localhost:8080/api/v1/login", method: "post" },
-          logout: { url: "http://localhost:8080/api/v1/logout", method: "get" },
-          user: { url: "http://localhost:8080/api/v1/me", method: "get" },
+          login: { url: "http://itdev.cmtc.ac.th:2002/api/v1/login", method: "post" },
+          logout: { url: "http://itdev.cmtc.ac.th:2002/api/v1/logout", method: "get" },
+          user: { url: "http://itdev.cmtc.ac.th:2002/api/v1/me", method: "get" },
         },
       },
     },
