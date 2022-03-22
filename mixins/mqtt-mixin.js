@@ -1,25 +1,6 @@
-<template>
-  <v-app>
-    <core-toolbar />
-
-    <core-drawer />
-
-    <core-view />
-  </v-app>
-</template>
-
-<script>
 import mqtt from "mqtt";
-import coreToolbar from "~/components/core/AppToolbar";
-import coreDrawer from "~/components/core/AppDrawer";
-import coreView from "~/components/core/AppView";
-
+import {mapGetters} from "vuex";
 export default {
-  components: {
-    coreToolbar,
-    coreDrawer,
-    coreView,
-  },
   data() {
     return {
       connection: {
@@ -40,6 +21,9 @@ export default {
         qos: 0,
       },
     };
+  },
+  computed:{
+    ...mapGetters({getTemp:'sensor/getTemp', getHumi:'sensor/getHumi', getNotifySetting:'sensor/getNotifySetting'}),
   },
   async mounted() {
     const { topic1, topic2, qos } = this.subscription;
@@ -72,21 +56,22 @@ export default {
     this.client.on("error", (error) => {
       console.log("Connection failed", error);
     });
-    this.client.on("message", (topic, message) => {
+     this.client.on("message",async (topic, message) => {
       if (topic === this.subscription.topic1) {
-        this.receiveNews.temp = message.toString();
-      } else if (topic === this.subscription.topic2) {
-        this.receiveNews.humi = message.toString();
+        await this.$store.commit("sensor/SET_TEMP", message.toString());
+        await this.client.end()
+        // this.receiveNews.temp = message.toString();
       }
+      if (topic === this.subscription.topic2) {
+       await this.$store.commit("sensor/SET_HUMI", message.toString());
+        await this.client.end()
+        // this.receiveNews.humi = message.toString();
+      }
+      // this.receiveNews = this.receiveNews.concat(message);
+      // console.log(`Received message ${message} from topic ${topic}`);
     });
-  },
-  methods: {},
-};
-</script>
 
-<style lang="scss">
-/* Remove in 1.2 */
-.v-datatable thead th.column.sortable i {
-  vertical-align: unset;
-}
-</style>
+
+
+  },
+};

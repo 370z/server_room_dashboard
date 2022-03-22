@@ -80,16 +80,16 @@
             icon: 'mdi-view-dashboard',
             text: 'Dashboard'
           },
-          // {
-          //   to: '/user-profile',
-          //   icon: 'mdi-account',
-          //   text: 'User Profile'
-          // },
-          // {
-          //   to: '/table-list',
-          //   icon: 'mdi-clipboard-outline',
-          //   text: 'Table List'
-          // },
+          {
+            to: '/settings',
+            icon: 'mdi-account',
+            text: 'Settings'
+          },
+          {
+            to: '/embedSensor',
+            icon: 'mdi-clipboard-outline',
+            text: 'embedSensor'
+          },
           // {
           //   to: '/typography',
           //   icon: 'mdi-format-font',

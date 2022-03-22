@@ -2,8 +2,6 @@ import VuetifyLoaderPlugin from "vuetify-loader/lib/plugin";
 import pkg from "./package";
 
 export default {
-  mode: "universal",
-
   /*
    ** Headers of the page
    */
@@ -12,16 +10,15 @@ export default {
     meta: [
       { charset: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { hid: "description", name: "description", content: pkg.description }
+      { hid: "description", name: "description", content: pkg.description },
     ],
     link: [
       { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
       {
         rel: "stylesheet",
-        href:
-          "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons"
-      }
-    ]
+        href: "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons",
+      },
+    ],
   },
 
   /*
@@ -40,21 +37,46 @@ export default {
   plugins: [
     "~/plugins/vuetify",
     { src: "~/plugins/chartist", mode: "client" },
-    "plugins/mqtt.js"
+    // "~/plugins/mqtt",
+    { src: "~/plugins/vuex-persist", ssr: false },
   ],
-
   /*
    ** Nuxt.js modules
    */
-   modules: ['@nuxtjs/axios'],
-  /*
-   ** Axios module configuration
-   */
+  modules: ["@nuxtjs/axios", "@nuxtjs/auth-next"],
 
-
-  /*
-   ** Build configuration
-   */
+  auth: {
+    watchLoggedIn: false,
+    watchUser: true,
+    plugins: [
+      { src: '~/plugins/auth', mode: 'client' }
+    ],
+    redirect: {
+      login: '/',
+      logout: '/',
+      callback:'/',
+      home: '/dashboard'
+    },
+    strategies: {
+      local: {
+        token: {
+          property: "token",
+          global: true,
+          required: true,
+          type: 'Bearer'
+        },
+        user: {
+          property: "user",
+          autoFetch: true
+        },
+        endpoints: {
+          login: { url: "http://localhost:8080/api/v1/login", method: "post" },
+          logout: { url: "http://localhost:8080/api/v1/logout", method: "get" },
+          user: { url: "http://localhost:8080/api/v1/me", method: "get" },
+        },
+      },
+    },
+  },
   build: {
     transpile: ["vuetify/lib"],
     plugins: [new VuetifyLoaderPlugin()],
@@ -62,6 +84,6 @@ export default {
     /*
      ** You can extend webpack config here
      */
-    extend(config, ctx) {}
-  }
+    extend(config, ctx) {},
+  },
 };

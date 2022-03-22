@@ -1,29 +1,29 @@
 <template>
   <v-container fill-height fluid grid-list-xl>
     <v-layout wrap>
-      <v-flex sm6 xs12 md6 lg3>
+      <v-flex sm6 xs12 md6 lg4>
         <material-stats-card
           color="green"
           icon="mdi-thermometer"
           title="Temperature"
-          :value="receiveNews.temp"
+          :value="getTemp"
           small-value="C"
           sub-icon="mdi-calendar"
           sub-text="Realtime Temperature"
         />
       </v-flex>
-      <v-flex sm6 xs12 md6 lg3>
+      <v-flex sm6 xs12 md6 lg4>
         <material-stats-card
           color="orange"
           icon="mdi-water-percent"
           title="Humidity"
-          :value="receiveNews.humi"
+          :value="getHumi"
           small-value="%"
           sub-icon="mdi-calendar"
           sub-text="Realtime Humidity"
         />
       </v-flex>
-      <v-flex sm6 xs12 md6 lg3>
+      <v-flex sm6 xs12 md6 lg4>
         <material-stats-card
           color="red"
           icon="mdi-information-outline"
@@ -32,31 +32,6 @@
           sub-icon="mdi-tag"
           sub-text="Tracked from AM2315"
         />
-      </v-flex>
-      <v-flex sm6 xs12 md6 lg3>
-        <v-card>
-          <v-card-text>
-            Line Token: {{ line_token }}
-            <form @submit.prevent="updateLineToken()" class="d-flex">
-              <v-text-field
-                type="text"
-                placeholder="Enter Line Token"
-                outlined
-                clearable
-                v-model="line_token"
-              ></v-text-field>
-              <v-btn type="submit" color="green"> Submit </v-btn>
-            </form>
-            Temp Notify Setting: {{ tempNotifyValue }}
-            <v-slider
-              v-model="tempNotifyValue"
-              max="50"
-              step="0.1"
-              thumb-label
-              ticks
-            ></v-slider>
-          </v-card-text>
-        </v-card>
       </v-flex>
 
       <v-flex md12 lg12>
@@ -70,10 +45,9 @@
             </template>
             <template slot="items" slot-scope="{ index, item }">
               <td>{{ index + 1 }}</td>
-              <td>{{ item.temp }}</td>
-              <td class="text-xs-right">{{ item.humi }}</td>
-              <td class="text-xs-right">{{ item.createdAt }}</td>
-              <td class="text-xs-right">{{ item.city }}</td>
+              <td class="text-xs-center">{{ item.temp }}</td>
+              <td class="text-xs-center">{{ item.humi }}</td>
+              <td class="text-xs-center">{{ item.createdAt }}</td>
             </template>
           </v-data-table>
         </material-card>
@@ -86,9 +60,11 @@
 import materialCard from "~/components/material/AppCard";
 import materialChartCard from "~/components/material/AppChartCard";
 import materialStatsCard from "~/components/material/AppStatsCard";
-import mqtt from "mqtt";
+import mqttMixin from "~/mixins/mqtt-mixin";
 export default {
+  middleware: ["auth"],
   layout: "dashboard",
+  mixins: [mqttMixin],
   // middleware: "authentication",
   components: {
     materialCard,
@@ -97,26 +73,7 @@ export default {
   },
   data() {
     return {
-      tempNotifyValue: 30.0,
-      line_token: "",
-      receiveNews: { temp: "0", humi: "0" },
-      connection: {
-        host: "itdev.cmtc.ac.th",
-        port: 2003,
-        endpoint: "/ws",
-        clean: true, // Reserved session
-        connectTimeout: 4000, // Time out
-        reconnectPeriod: 4000, // Reconnection interval
-        // Certification Information
-        clientId: "mqttjs_3be2c321",
-        username: "admin",
-        password: "admin",
-      },
-      subscription: {
-        topic1: "temp",
-        topic2: "humi",
-        qos: 0,
-      },
+      tempNotifyValue: this.$auth.$state.user.notify_setting,
       headers: [
         {
           sortable: false,
@@ -127,6 +84,7 @@ export default {
           sortable: false,
           text: "Temperature",
           value: "temp",
+          align: "center",
         },
         {
           sortable: false,
@@ -150,23 +108,17 @@ export default {
       },
     };
   },
-  watch: {
-    async tempNotifyValue(value) {
-      await this.$axios
-        .$put("http://itdev.cmtc.ac.th:2002/api/v1/updateNotify/1", {
-          notify_setting: value,
-        })
-        .then((response) => {
-          console.log(response);
-        });
-      console.log(value);
-    },
+  watch:{
+
   },
   computed: {
     serverStatusHandler() {
-      if (this.receiveNews.temp > 0 && this.receiveNews.temp <= this.tempNotifyValue) {
+      if (
+        this.getTemp > 0 &&
+        this.getTemp <= this.getNotifySetting
+      ) {
         return "Normal";
-      } else if (this.receiveNews.temp > this.tempNotifyValue) {
+      } else if (this.getTemp > this.getNotifySetting) {
         return "High Temp";
       } else {
         return "Sensor not working";
@@ -174,24 +126,6 @@ export default {
     },
   },
   methods: {
-    async updateLineToken() {
-      await this.$axios
-        .$put("http://itdev.cmtc.ac.th:2002/api/v1/updateToken/1", {
-          line_token: this.line_token,
-        })
-        .then((response) => {
-          console.log(response);
-        });
-    },
-    async retrieveLineData() {
-      await this.$axios
-        .$get("http://itdev.cmtc.ac.th:2002/api/v1/userData")
-        .then((response) => {
-          this.line_token = response[0].line_token;
-          this.tempNotifyValue = response[0].notify_setting;
-          console.log(response);
-        });
-    },
     async retrieveData() {
       await this.$axios
         .$get("http://itdev.cmtc.ac.th:2002/api/v1/sensorData")
@@ -227,75 +161,6 @@ export default {
   },
   async mounted() {
     await this.retrieveData();
-    await this.retrieveLineData();
-    const { topic1, topic2, qos } = this.subscription;
-    const { host, port, endpoint, ...options } = this.connection;
-    const connectUrl = `ws://${host}:${port}${endpoint}`;
-    try {
-      this.client = mqtt.connect(connectUrl, options);
-    } catch (error) {
-      console.log("mqtt.connect error", error);
-    }
-    this.client.on("connect", () => {
-      //console.log("Connection succeeded!");
-    });
-    this.client.subscribe(topic1, { qos }, (error, res) => {
-      if (error) {
-        console.log("Subscribe to topics error", error);
-        return;
-      }
-      this.subscribeSuccess = true;
-      console.log("Subscribe to topics res", res);
-    });
-    this.client.subscribe(topic2, { qos }, (error, res) => {
-      if (error) {
-        console.log("Subscribe to topics error", error);
-        return;
-      }
-      this.subscribeSuccess = true;
-      console.log("Subscribe to topics res", res);
-    });
-    this.client.on("error", (error) => {
-      console.log("Connection failed", error);
-    });
-    this.client.on("message", (topic, message) => {
-      if (topic === this.subscription.topic1) {
-        this.receiveNews.temp = message.toString();
-      } else if (topic === this.subscription.topic2) {
-        this.receiveNews.humi = message.toString();
-      }
-      // this.receiveNews = this.receiveNews.concat(message);
-      // console.log(`Received message ${message} from topic ${topic}`);
-    });
-
-    this.$nextTick(() => {
-      /*this.dailySalesChart.options = {
-          lineSmooth: this.$chartist.Interpolation.cardinal({
-            tension: 0
-          }),
-          low: 0,
-          high: 50, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
-          chartPadding: {
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0
-          }
-        };
-        this.dataCompletedTasksChart.options = {
-          lineSmooth: this.$chartist.Interpolation.cardinal({
-            tension: 0
-          }),
-          low: 0,
-          high: 1000, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
-          chartPadding: {
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0
-          }
-        };*/
-    });
   },
 };
 </script>
