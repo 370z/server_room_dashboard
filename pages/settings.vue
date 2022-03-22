@@ -51,7 +51,7 @@ export default {
     async updateLineToken() {
       try {
         const response = await this.$axios.$put(
-          "http://localhost:8080/api/v1/updateToken/1",
+          "http://itdev.cmtc.ac.th:2002/api/v1/updateToken/1",
           {
             line_token: this.line_token,
           }

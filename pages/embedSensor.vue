@@ -68,7 +68,7 @@ export default {
   async created() {
     try {
       this.$axios
-        .get("http://localhost:8080/api/v1/notifySetting")
+        .get("http://itdev.cmtc.ac.th:2002/api/v1/notifySetting")
         .then((res) => {
           this.$store.commit(
             "sensor/SET_NOTIFY_SETTING",
