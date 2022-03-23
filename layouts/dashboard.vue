@@ -9,7 +9,6 @@
 </template>
 
 <script>
-import mqtt from "mqtt";
 import coreToolbar from "~/components/core/AppToolbar";
 import coreDrawer from "~/components/core/AppDrawer";
 import coreView from "~/components/core/AppView";
@@ -22,64 +21,9 @@ export default {
   },
   data() {
     return {
-      connection: {
-        host: "itdev.cmtc.ac.th",
-        port: 2003,
-        endpoint: "/ws",
-        clean: true, // Reserved session
-        connectTimeout: 4000, // Time out
-        reconnectPeriod: 4000, // Reconnection interval
-        // Certification Information
-        clientId: "mqttjs_3be2c321",
-        username: "admin",
-        password: "admin",
-      },
-      subscription: {
-        topic1: "temp",
-        topic2: "humi",
-        qos: 0,
-      },
     };
   },
-  async mounted() {
-    const { topic1, topic2, qos } = this.subscription;
-    const { host, port, endpoint, ...options } = this.connection;
-    const connectUrl = `ws://${host}:${port}${endpoint}`;
-    try {
-      this.client = mqtt.connect(connectUrl, options);
-    } catch (error) {
-      console.log("mqtt.connect error", error);
-    }
-    this.client.on("connect", () => {
-      //console.log("Connection succeeded!");
-    });
-    this.client.subscribe(topic1, { qos }, (error, res) => {
-      if (error) {
-        console.log("Subscribe to topics error", error);
-        return;
-      }
-      this.subscribeSuccess = true;
-      console.log("Subscribe to topics res", res);
-    });
-    this.client.subscribe(topic2, { qos }, (error, res) => {
-      if (error) {
-        console.log("Subscribe to topics error", error);
-        return;
-      }
-      this.subscribeSuccess = true;
-      console.log("Subscribe to topics res", res);
-    });
-    this.client.on("error", (error) => {
-      console.log("Connection failed", error);
-    });
-    this.client.on("message", (topic, message) => {
-      if (topic === this.subscription.topic1) {
-        this.receiveNews.temp = message.toString();
-      } else if (topic === this.subscription.topic2) {
-        this.receiveNews.humi = message.toString();
-      }
-    });
-  },
+
   methods: {},
 };
 </script>

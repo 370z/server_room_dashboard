@@ -1,5 +1,5 @@
 import mqtt from "mqtt";
-import {mapGetters} from "vuex";
+import { mapGetters } from "vuex";
 export default {
   data() {
     return {
@@ -20,10 +20,18 @@ export default {
         topic2: "humi",
         qos: 0,
       },
+      client: {
+        connected: false,
+      },
+      subscribeSuccess: false,
     };
   },
-  computed:{
-    ...mapGetters({getTemp:'sensor/getTemp', getHumi:'sensor/getHumi', getNotifySetting:'sensor/getNotifySetting'}),
+  computed: {
+    ...mapGetters({
+      getTemp: "sensor/getTemp",
+      getHumi: "sensor/getHumi",
+      getNotifySetting: "sensor/getNotifySetting",
+    }),
   },
   async mounted() {
     const { topic1, topic2, qos } = this.subscription;
@@ -37,41 +45,32 @@ export default {
     this.client.on("connect", () => {
       //console.log("Connection succeeded!");
     });
-    this.client.subscribe(topic1, { qos }, (error, res) => {
+    await this.client.subscribe(topic1, { qos }, (error, res) => {
       if (error) {
         console.log("Subscribe to topics error", error);
         return;
       }
       this.subscribeSuccess = true;
-      console.log("Subscribe to topics res", res);
+      console.log("Subscribe to topic:", res[0].topic);
     });
-    this.client.subscribe(topic2, { qos }, (error, res) => {
+    await this.client.subscribe(topic2, { qos }, (error, res) => {
       if (error) {
         console.log("Subscribe to topics error", error);
         return;
       }
       this.subscribeSuccess = true;
-      console.log("Subscribe to topics res", res);
+      console.log("Subscribe to topic:", res[0].topic);
     });
     this.client.on("error", (error) => {
       console.log("Connection failed", error);
     });
-     this.client.on("message",async (topic, message) => {
+    this.client.on("message", async (topic, message) => {
       if (topic === this.subscription.topic1) {
         await this.$store.commit("sensor/SET_TEMP", message.toString());
-        await this.client.end()
-        // this.receiveNews.temp = message.toString();
       }
       if (topic === this.subscription.topic2) {
-       await this.$store.commit("sensor/SET_HUMI", message.toString());
-        await this.client.end()
-        // this.receiveNews.humi = message.toString();
+        await this.$store.commit("sensor/SET_HUMI", message.toString());
       }
-      // this.receiveNews = this.receiveNews.concat(message);
-      // console.log(`Received message ${message} from topic ${topic}`);
     });
-
-
-
   },
 };
